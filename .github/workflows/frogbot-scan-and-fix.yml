@@ -1,0 +1,49 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# Frogbot Scan and Fix does the following:
+# Automatically creates pull requests with fixes for vulnerable project dependencies.
+# Uses JFrog Xray to scan the project.
+# Read more about Frogbot here - https://github.com/jfrog/frogbot#frogbot
+
+name: "Frogbot Scan and Fix"
+on:
+  push:
+    branches: [ "main" ]
+permissions:
+  contents: write
+  pull-requests: write
+  security-events: write
+jobs:
+  create-fix-pull-requests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+           java-version: "11"
+           distribution: "temurin"
+
+      - uses: jfrog/frogbot@v2
+        env:
+          # [Mandatory]
+          # JFrog platform URL (This functionality requires version 3.29.0 or above of Xray)
+          JF_URL: ${{ secrets.JF_URL }}
+
+          # [Mandatory if JF_ACCESS_TOKEN is not provided]
+          # JFrog username with 'read' permissions for Xray. Must be provided with JF_PASSWORD
+          JF_USER: ${{ secrets.JF_USER }}
+
+          # [Mandatory if JF_ACCESS_TOKEN is not provided]
+          # JFrog password. Must be provided with JF_USER
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+
+          # [Mandatory]
+          # The GitHub token automatically generated for the job
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # [Mandatory if using npm]
+          # The command that installs the dependencies
+          # JF_INSTALL_DEPS_CMD: "npm i"
