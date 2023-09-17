@@ -98,13 +98,19 @@ jobs:
           docker tag ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
           jf docker push $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER 
           
-      - name: Upload helm charts and release note 
+      - name: Publish release note 
         env:
           JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
           JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
         run: |
-          jf rt u rn/Release-Note-App-1.0.pdf ${{ github.event.inputs.rt_generic_repo }} --flat
-          jf rt u "helm/*.tgz" ${{ github.event.inputs.rt_helm_repo }} --flat
+          jf rt u rn/Release-Note-App-1.0.pdf ${{ github.event.inputs.rt_generic_repo }} --flat --module="release_note:$GITHUB_RUN_NUMBER"
+
+      - name: Publish HELM charts 
+        env:
+          JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
+          JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
+        run: |
+          jf rt u "helm/*.tgz" ${{ github.event.inputs.rt_helm_repo }} --flat --module="helm_charts:$GITHUB_RUN_NUMBER
 
       - name: Publish build 
         env:
