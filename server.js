@@ -4,6 +4,10 @@ const evilsrc = {constructor: {prototype: {evilkey: "evilvalue"}}};
 lodash.defaultsDeep({}, evilsrc)
 
 var app = express();
+var ghToken = "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"
+var jfToken = "cmVmdGtuOjAxOjB3MDg1OTY2MjM6T3RLT2d3OEs2akV6akJBd3hKRmh2T0ZLa0dn"
+var jfApKey ="AKCp8nzWSd9PSdSNAQTuvhfLhUkrgAfszAyi4idZLsyhB5JN8iRzyqLugqvFtAch9SNWKEwu9"
+var password = "Ivan_jr22"
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
