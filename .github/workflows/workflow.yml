@@ -2,6 +2,16 @@ name: "github-ejs-build"
 on: 
   workflow_dispatch:
     inputs:
+      art_server_id:
+        required: true
+        type: string
+        default: "soleng"
+        description: "Artifactory Server ID"
+      art_repo_id:
+        required: true
+        type: string
+        default: "carm-npm-dev"
+        description: "Artifactory Repository Name"
       art_project:
         required: true
         type: string
@@ -32,7 +42,7 @@ jobs:
         run: |
           jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER --project=${{ github.event.inputs.art_project }}
           jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
-          jf npmc --repo-resolve carm-mvn-dev
+          jf npmc --server-id-resolve=${{ github.event.inputs.art_server_id }} --server-id-deploy=${{ github.event.inputs.art_server_id }} --repo-resolve=${{ github.event.inputs.art_repo_id }} --repo-deploy=${{ github.event.inputs.art_repo_id }}
           jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
           jf audit --npm --project=${{ github.event.inputs.art_project }}
       - name: Docker build 
