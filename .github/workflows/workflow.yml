@@ -68,7 +68,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:${{ env.GITHUB_RUN_NUMBER }}
+          tags: ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:${{ GITHUB_RUN_NUMBER }}
       
       - name: Docker push 
         env:
@@ -77,5 +77,5 @@ jobs:
           JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
           JF_HOST: ${{ secrets.JF_HOST }}
         run: |
-          jf docker push ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:${{ env.GITHUB_RUN_NUMBER }} --server-id=${{ github.event.inputs.art_server_id }} --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER          
+          jf docker push ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:${{ GITHUB_RUN_NUMBER }} --server-id=${{ github.event.inputs.art_server_id }} --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER          
           jf rt bp $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER
