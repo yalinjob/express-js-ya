@@ -27,6 +27,11 @@ on:
         type: string
         default: "github-ejs"
         description: "Build name used as artifact name"
+      xr_override_fail_build:
+        required: true
+        type: string
+        default: "false"
+        description: "Set to false to ignore the fail build coming from Xray (exit code 3)"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -58,7 +63,7 @@ jobs:
           jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
           jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_remote_repo_id }}
           jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
-          jf audit --npm
+          jf audit --npm --fail=${{ github.event.inputs.xr_override_fail_build }}
       
       - name: Docker build 
         env:
