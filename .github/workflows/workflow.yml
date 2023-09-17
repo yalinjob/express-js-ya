@@ -7,16 +7,26 @@ on:
         type: string
         default: "github-ejs"
         description: "Build name used as artifact name"
-      rt_npm_remote_repo_id:
-        required: true
-        type: string
-        default: "carm-npmjs-remote"
-        description: "Artifactory Repository Name"
       rt_project:
         required: true
         type: string
         default: "carm"
         description: "Artifactory Project ID"
+      rt_npm_remote_repo_id:
+        required: true
+        type: string
+        default: "carm-npmjs-remote"
+        description: "Artifactory Repository Name"
+      rt_generic_repo:
+        required: true
+        type: string
+        default: "carm-generic-dev-local"
+        description: "Artifactory Generic repository"
+      rt_helm_repo:
+        required: true
+        type: string
+        default: "carm-helm-dev-local"
+        description: "Artifactory HELM repository"
       rt_docker_repo:
         required: true
         type: string
@@ -62,12 +72,13 @@ jobs:
         env:
           JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
           JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
+          JFROG_CLI_BUILD_NUMBER: $GITHUB_RUN_NUMBER
           JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
         run: |
-          jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER 
-          jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
+          jf rt bce $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER 
+          jf rt bag $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER
           jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_remote_repo_id }}
-          jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
+          jf npm i --omit dev --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER
           
           if [ ${{ github.event.inputs.xr_enable_scan }} == 'true' ]; then
           	echo "Execute Xray scanning ..."
@@ -76,7 +87,7 @@ jobs:
           	echo "Skip Xray scanning!!!"
           fi
           
-      - name: Docker build 
+      - name: Docker build and push
         env:
           JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
           JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
@@ -86,4 +97,18 @@ jobs:
           docker build --build-arg JF_TOKEN=${JF_ENV_1} . -t ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
           docker tag ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
           jf docker push $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER 
+          
+      - name: Upload helm charts and release note 
+        env:
+          JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
+          JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
+        run: |
+          jf rt u rn/Release-Note-App-1.0.pdf ${{ github.event.inputs.rt_generic_repo }}
+          jf rt u "helm/*.tgz" ${{ github.event.inputs.rt_helm_repo }}
+
+      - name: Publish build 
+        env:
+          JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
+          JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
+        run: |
           jf rt bp $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER
