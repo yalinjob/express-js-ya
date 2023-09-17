@@ -8,7 +8,7 @@ on:
         default: "github-ejs"
         description: "Build name used as artifact name"
       rt_project:
-        required: true
+        required: false
         type: string
         default: "carm"
         description: "Artifactory Project ID"
