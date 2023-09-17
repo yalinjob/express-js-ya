@@ -1,0 +1,8 @@
+version: 1
+type: npm
+resolver:
+  repo: carm-npm-dev
+  serverId: soleng
+deployer:
+  repo: carm-npm-dev
+  serverId: soleng

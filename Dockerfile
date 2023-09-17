@@ -9,6 +9,9 @@ RUN apt-get update && \
     apt-get clean
 RUN curl -fL https://install-cli.jfrog.io | sh
 
+ENV PASSWORD="password"
+ARG PASSWORD="Password"
+
 # If you are building your code for production
 RUN jf c import ${JF_TOKEN} && \
     jf npmc --repo-resolve=fgr-npm-remote && \
