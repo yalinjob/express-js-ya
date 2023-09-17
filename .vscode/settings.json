@@ -1,0 +1,3 @@
+{
+    "jfrog.xray.exclusions": "**/*{test,venv,node_modules,target}*"
+}
