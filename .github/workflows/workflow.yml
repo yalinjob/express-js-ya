@@ -68,7 +68,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:$GITHUB_RUN_NUMBER
+          tags: ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:${{ env.GITHUB_RUN_NUMBER }}
       
       - name: Docker push 
         env:
