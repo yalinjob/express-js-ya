@@ -103,7 +103,7 @@ jobs:
           JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
           JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
         run: |
-          jf rt u rn/Release-Note-App-1.0.pdf ${{ github.event.inputs.rt_generic_repo }} --flat --module="release_note:$GITHUB_RUN_NUMBER"\
+          jf rt u rn/Release-Note-App-1.0.pdf ${{ github.event.inputs.rt_generic_repo }} --flat --module="release_note:$GITHUB_RUN_NUMBER"
           jf rt u "helm/*.tgz" ${{ github.event.inputs.rt_helm_repo }} --flat --module="helm_charts:$GITHUB_RUN_NUMBER"
 
       - name: Publish build 
