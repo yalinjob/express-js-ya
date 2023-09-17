@@ -1,0 +1,89 @@
+name: "github-ejs-build"
+on: 
+  workflow_dispatch:
+    inputs:
+      build_name:
+        required: true
+        type: string
+        default: "github-ejs"
+        description: "Build name used as artifact name"
+      rt_npm_remote_repo_id:
+        required: true
+        type: string
+        default: "carm-npmjs-remote"
+        description: "Artifactory Repository Name"
+      rt_project:
+        required: true
+        type: string
+        default: "carm"
+        description: "Artifactory Project ID"
+      rt_docker_repo:
+        required: true
+        type: string
+        default: "carm-docker-dev"
+        description: "Artifactory Docker repository"
+      docker_image_name:
+        required: true
+        type: string
+        default: "ejs"
+        description: "Docker Image name"
+      xr_enable_scan:
+        required: true
+        type: string
+        default: "false"
+        description: "Scan with Xray"
+      xr_override_fail_build:
+        required: true
+        type: string
+        default: "false"
+        description: "Set to false to ignore the fail build coming from Xray (exit code 3)"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Here we install all the tools : docker buildx, QEMU, JDK 11, JFrog CLI
+    steps:
+      - name: Print Inputs
+        run: echo "${{ toJSON(github.event.inputs) }}"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+            node-version: 18
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v3
+        with:
+          version: latest
+        env:
+            JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
+            JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
+      
+      - name: NPM Audit 
+        env:
+          JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
+          JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
+          JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
+        run: |
+          jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER 
+          jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
+          jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_remote_repo_id }}
+          jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
+          
+          if [ ${{ github.event.inputs.xr_enable_scan }} == 'true' ]; then
+          	echo "Execute Xray scanning ..."
+          	jf audit --npm --fail=${{ github.event.inputs.xr_override_fail_build }}
+          else
+          	echo "Skip Xray scanning!!!"
+          fi
+          
+      - name: Docker build 
+        env:
+          JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.rt_project }}
+          JFROG_CLI_BUILD_NAME: ${{ github.event.inputs.build_name }}
+          JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
+          JF_HOST: ${{ secrets.JF_HOST }}
+        run: |
+          docker build --build-arg JF_TOKEN=${JF_ENV_1} . -t ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
+          docker tag ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
+          jf docker push $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER 
+          jf rt bp $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER

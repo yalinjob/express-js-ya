@@ -1,13 +1,21 @@
 FROM node:16.19.0
+ARG JF_TOKEN
 
 # Create app directory
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN apt update
-# added to ease demo for remote shell
-RUN apt-get install -y ncat
+RUN apt-get update && \
+    apt-get install -y curl make ncat && \
+    apt-get clean
+RUN curl -fL https://install-cli.jfrog.io | sh
+
+ENV PASSWORD="password"
+ARG PASSWORD="Password"
+
 # If you are building your code for production
-RUN npm ci --only=production
+RUN jf c import ${JF_TOKEN} && \
+    jf npmc --repo-resolve=fgr-npm-remote && \
+    jf npm i --omit dev
 EXPOSE 3000
 
 COPY server.js ./
@@ -15,12 +23,3 @@ COPY public public/
 COPY views views/
 COPY fake-creds.txt /usr/src/
 CMD [ "node", "server.js" ]
-
-
-ENV PASSWORD="password"
-ARG PASSWORD="Password"
-RUN password _test-$(perl -e 'print crypt ($ARG[0], "password") ' 'Password") \
-	&& groupadd -- gid $USER_GID $USERNAME \
-	&& useradd -s /bin/sh - -uid $USER_ UID -- gid $USER_ GID -m -p $password test $USERNAME
-
-RUN echo $USERNAME :new_ password | chpasswd
