@@ -17,7 +17,16 @@ on:
         type: string
         default: "carm"
         description: "Artifactory Project ID"
-
+      art_docker_registry:
+        required: true
+        type: string
+        default: "soleng.jfrog.io/carm-docker-dev/"
+        description: "Artifactory Docker Registry"
+      art_docker_image:
+        required: true
+        type: string
+        default: "ejs"
+        description: "Docker Image name"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,7 +36,8 @@ jobs:
         run: echo "${{ toJSON(github.event.inputs) }}"
       - name: Checkout
         uses: actions/checkout@v3
-      # Install prerequisites
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Install Node
         uses: actions/setup-node@v3
         with:
@@ -52,14 +62,20 @@ jobs:
           jf npmc --server-id-resolve=${{ github.event.inputs.art_server_id }} --server-id-deploy=${{ github.event.inputs.art_server_id }} --repo-resolve=${{ github.event.inputs.art_repo_id }} --repo-deploy=${{ github.event.inputs.art_repo_id }}
           jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
           jf audit --npm
-      - name: Docker build 
+
+      - name: Docker build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          load: true
+          tags: ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:$GITHUB_RUN_NUMBER
+      
+      - name: Docker push 
         env:
           JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.art_project }}
           JFROG_CLI_BUILD_NAME: 'github-ejs-demo'
           JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
           JF_HOST: ${{ secrets.JF_HOST }}
         run: |
-          docker build --build-arg JF_TOKEN=${JF_ENV_1} . -t ejs-demo:$GITHUB_RUN_NUMBER
-          docker tag ejs-demo:$GITHUB_RUN_NUMBER $JF_HOST/fgr-docker-dev-local/ejs-demo:$GITHUB_RUN_NUMBER
-          jf docker push $JF_HOST/carm-docker-dev-local//ejs-demo:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER
+          jf docker push ${{ github.event.inputs.art_docker_registry }}${{ github.event.inputs.art_docker_image }}:$GITHUB_RUN_NUMBER --server-id=${{ github.event.inputs.art_server_id }} --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER          
           jf rt bp $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER
