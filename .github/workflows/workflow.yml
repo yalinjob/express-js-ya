@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     # Here we install all the tools : docker buildx, QEMU, JDK 11, JFrog CLI
     steps:
+      - name: Print Inputs
+        run: echo "${{ toJSON(github.event.inputs) }}"
       - name: Checkout
         uses: actions/checkout@v3
       # Install prerequisites
@@ -32,19 +34,24 @@ jobs:
             node-version: 18
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v3
+        with:
+          version: latest
         env:
             JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.art_project }}
             JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
+      - name: Ping JFrog CLI
+        run: jf rt ping
+      
       - name: NPM Audit 
         env:
           JFROG_CLI_BUILD_NAME: 'github-ejs-demo'
           JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
         run: |
-          jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER --project=${{ github.event.inputs.art_project }}
+          jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
           jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
           jf npmc --server-id-resolve=${{ github.event.inputs.art_server_id }} --server-id-deploy=${{ github.event.inputs.art_server_id }} --repo-resolve=${{ github.event.inputs.art_repo_id }} --repo-deploy=${{ github.event.inputs.art_repo_id }}
           jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
-          jf audit --npm --project=${{ github.event.inputs.art_project }}
+          jf audit --npm
       - name: Docker build 
         env:
           JFROG_CLI_BUILD_PROJECT: ${{ github.event.inputs.art_project }}
@@ -54,5 +61,5 @@ jobs:
         run: |
           docker build --build-arg JF_TOKEN=${JF_ENV_1} . -t ejs-demo:$GITHUB_RUN_NUMBER
           docker tag ejs-demo:$GITHUB_RUN_NUMBER $JF_HOST/fgr-docker-dev-local/ejs-demo:$GITHUB_RUN_NUMBER
-          jf docker push $JF_HOST/carm-docker-dev-local//ejs-demo:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER --project=${{ github.event.inputs.art_project }}
-          jf rt bp $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER --project=${{ github.event.inputs.art_project }}
+          jf docker push $JF_HOST/carm-docker-dev-local//ejs-demo:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER
+          jf rt bp $JFROG_CLI_BUILD_NAME $GITHUB_RUN_NUMBER
