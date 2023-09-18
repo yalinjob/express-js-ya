@@ -5,7 +5,7 @@ on:
       build_name:
         required: true
         type: string
-        default: "github-ejs"
+        default: "carm-github-ejs"
         description: "Build name used as artifact name"
       rt_project:
         required: false
@@ -20,17 +20,17 @@ on:
       rt_generic_repo:
         required: true
         type: string
-        default: "carm-generic-dev-local"
+        default: "generic-dev-local"
         description: "Artifactory Generic repository"
       rt_helm_repo:
         required: true
         type: string
-        default: "carm-helm-dev-local"
+        default: "helm-dev-local"
         description: "Artifactory HELM repository"
       rt_docker_repo:
         required: true
         type: string
-        default: "carm-docker-dev"
+        default: "docker-dev-local"
         description: "Artifactory Docker repository"
       docker_image_name:
         required: true
