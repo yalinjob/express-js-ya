@@ -10,7 +10,7 @@ on:
       rt_project:
         required: false
         type: string
-        default: "carm"
+        default: ""
         description: "Artifactory Project ID"
       rt_npm_remote_repo_id:
         required: true
