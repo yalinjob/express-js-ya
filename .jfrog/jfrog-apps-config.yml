@@ -1,0 +1,10 @@
+version: "1.0.0"
+modules:
+  - name: "npmModule"
+    scanners:
+      sast:
+        language: javascript
+  - name: "pythonModule"
+    scanners:
+      sast:
+        language: python
