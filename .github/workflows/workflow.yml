@@ -97,7 +97,10 @@ jobs:
           echo "BUILDING*****"
           docker build --build-arg JF_TOKEN=${JF_ENV_1} . -t ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
           echo "TAGGING*****"
+          echo “DEBUG: docker tag ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER”
+
           docker tag ${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER
+          
           echo "PUSHING*****"
           jf docker push $JF_HOST/${{ github.event.inputs.rt_docker_repo }}/${{ github.event.inputs.docker_image_name }}:$GITHUB_RUN_NUMBER --build-name=$JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER 
           
