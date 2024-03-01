@@ -5,7 +5,7 @@ on:
       build_name:
         required: true
         type: string
-        default: "carm-github-ejs"
+        default: "myork-github-ejs"
         description: "Build name used as artifact name"
       rt_project:
         required: false
@@ -15,22 +15,22 @@ on:
       rt_npm_remote_repo_id:
         required: true
         type: string
-        default: "carm-npmjs-remote"
+        default: "myork-npm-remote"
         description: "Artifactory Repository Name"
       rt_generic_repo:
         required: true
         type: string
-        default: "generic-dev-local"
+        default: "myork-generic-local"
         description: "Artifactory Generic repository"
       rt_helm_repo:
         required: true
         type: string
-        default: "helm-dev-local"
+        default: "myork-helm-local"
         description: "Artifactory HELM repository"
       rt_docker_repo:
         required: true
         type: string
-        default: "docker-dev-local"
+        default: "myork-docker-local"
         description: "Artifactory Docker repository"
       docker_image_name:
         required: true
