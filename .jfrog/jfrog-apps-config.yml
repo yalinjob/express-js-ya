@@ -4,7 +4,7 @@ modules:
     scanners:
       sast:
         language: javascript
-  - name: "pythonModule"
-    scanners:
-      sast:
-        language: python
+#  - name: "pythonModule"
+#    scanners:
+#      sast:
+#        language: python
