@@ -3,6 +3,13 @@ on:
   schedule:
     # The repository will be scanned once a day at 00:00 GMT.
     - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      run_reason:
+        required: false
+        type: string
+        default: "On-demand workflow run"
+        description: "Reason for manually triggering the workflow"
 permissions:
   contents: write
   pull-requests: write
