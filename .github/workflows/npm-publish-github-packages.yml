@@ -19,7 +19,7 @@ env:
   JFROG_CLI_OFFER_CONFIG: false
   JFROG_CLI_BUILD_NAME: One Scan
   JFROG_CLI_BUILD_NUMBER: 159
-  JFROG_CLI_BUILD_URL: 'https://github.com/yalinjob/dvja1/actions/runs/9210660988'
+  JFROG_CLI_BUILD_URL: 'https://github.com/yalinjob/express-js-ya/actions/runs/9210660988'
   JFROG_CLI_USER_AGENT: setup-jfrog-cli-github-action/4.0.2
 
 jobs:
