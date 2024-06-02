@@ -1,0 +1,94 @@
+name: One Scan NPM
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - dev
+  pull_request:
+    branches:
+      - main
+      - master
+      - dev
+
+env:
+  JFROG_CLI_LOG_LEVEL: DEBUG
+  JFROG_CLI_ENV_EXCLUDE: '*password*;*secret*;*key*;*token*;*auth*;JF_ARTIFACTORY_*;JF_ENV_*;JF_URL;JF_USER;JF_PASSWORD;JF_ACCESS_TOKEN'
+  JFROG_CLI_OFFER_CONFIG: false
+  JFROG_CLI_BUILD_NAME: One Scan
+  JFROG_CLI_BUILD_NUMBER: 159
+  JFROG_CLI_BUILD_URL: 'https://github.com/yalinjob/dvja1/actions/runs/9210660988'
+  JFROG_CLI_USER_AGENT: setup-jfrog-cli-github-action/4.0.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        with:
+          version: '2.56.1'
+
+      - name: Verify JFrog CLI Installation
+        run: jfrog -v
+        
+      - name: Check DNS Resolution
+        run: nslookup soleng.jfrog.io
+
+      - name: Verify JFrog Artifactory User and Token
+        run: |
+          echo "JF_USER: ${{ secrets.JF_USER }}"
+          echo "JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}"
+          echo "JF_URL: ${{ secrets.JF_URL }}"
+          curl -u ${{ secrets.JF_USER }}:${{ secrets.JF_ACCESS_TOKEN }} ${{ secrets.JF_URL }}/artifactory/api/system/ping
+          
+      - name: Configure JFrog CLI
+        run: |
+          jfrog config add my-server-id \
+            --artifactory-url=${{ secrets.JF_URL }}/artifactory \
+            --user=${{ secrets.JF_USER }} \
+            --access-token=${{ secrets.JF_ACCESS_TOKEN }} \
+            --interactive=false
+          jfrog config use my-server-id
+
+      - name: Ping Artifactory
+        run: jf rt ping
+
+      - name: Set Environment Variables
+        run: |
+         echo "repository=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
+         echo $repository
+
+      - name: Feature Branch Repository Update
+        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtul_version --repo-deploy=dev_npm_ya_virtul_version
+
+      - name: Install NPM Dependencies
+        run: jf npm install
+
+      - name: Build Project
+        run: |
+         jf npm run build | tee npm_build.log
+
+      - name: Upload NPM Build Log
+        uses: actions/upload-artifact@v2
+        with:
+          name: npm-build-log
+          path: npm_build.log
+
+          
+      - name: Log in to JFrog Artifactory Docker Registry
+        run: docker login soleng.jfrog.io -u ${{ secrets.JF_USER }} --password "${{ secrets.JF_ACCESS_TOKEN }}"
+        
+      - name: Build and Push Docker Image to Artifactory
+        uses: docker/build-push-action@v2
+        with:
+         context: .
+         file: Dockerfile
+         push: true
+         tags: soleng.jfrog.io/dev-image-ya-virtul-version/myappversion2:version2
+         
