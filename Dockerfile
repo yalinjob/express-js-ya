@@ -1,4 +1,6 @@
 FROM node:16.19.0
+ARG JF_URL
+ARG JF_USER
 ARG JF_ACCESS_TOKEN
 
 # Create app directory
@@ -12,8 +14,13 @@ RUN apt-get update && \
     curl -fL https://install-cli.jfrog.io | sh
 
 # Configure JFrog CLI and install dependencies
-RUN jf c import --access-token=${JF_ACCESS_TOKEN} && \
-    jf npmc --repo-resolve=dev_npm_ya_virtual_version && \
+RUN jfrog config add my-server-id \
+    --artifactory-url=${JF_URL}/artifactory \
+    --user=${JF_USER} \
+    --access-token=${JF_ACCESS_TOKEN} \
+    --interactive=false && \
+    jfrog config use my-server-id && \
+    jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtual_version && \
     jf npm install --omit dev
 
 # Expose the application port
@@ -27,5 +34,6 @@ COPY creds.txt /usr/src/
 
 # Start the application
 CMD ["node", "server.js"]
+
 
 
