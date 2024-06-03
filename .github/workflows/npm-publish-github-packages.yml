@@ -61,18 +61,18 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-         echo "repository=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
-         echo $repository
+          echo "repository=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_ENV
+          echo $repository
 
       - name: Feature Branch Repository Update
-        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtul_version --repo-deploy=dev_npm_ya_virtul_version
+        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtual_version --repo-deploy=dev_npm_ya_virtual_version
 
       - name: Install NPM Dependencies
         run: jf npm install
 
       - name: Build Project
         run: |
-         jf npm run build | tee npm_build.log
+          jf npm run build | tee npm_build.log
 
       - name: Upload NPM Build Log
         uses: actions/upload-artifact@v2
@@ -80,17 +80,15 @@ jobs:
           name: npm-build-log
           path: npm_build.log
 
-
       - name: Log in to JFrog Artifactory Docker Registry
         run: docker login soleng.jfrog.io -u ${{ secrets.JF_USER }} --password "${{ secrets.JF_ACCESS_TOKEN }}"
         
       - name: Build and Push Docker Image to Artifactory
         uses: docker/build-push-action@v2
         with:
-         context: .
-         file: Dockerfile
-         push: true
-         tags: soleng.jfrog.io/dev-image-ya-virtul-version/myappversion2:version2
-  
-
-     
+          context: .
+          file: Dockerfile
+          push: true
+          tags: soleng.jfrog.io/dev-image-ya-virtual-version/myappversion2:version2
+        env: 
+            JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
