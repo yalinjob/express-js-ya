@@ -91,6 +91,6 @@ jobs:
          file: Dockerfile
          push: true
          tags: soleng.jfrog.io/dev-image-ya-virtul-version/myappversion2:version2
-          
+  
 
      
