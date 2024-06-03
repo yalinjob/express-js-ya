@@ -13,6 +13,9 @@ RUN apt-get update && \
     apt-get clean && \
     curl -fL https://install-cli.jfrog.io | sh
 
+# Verify JFrog CLI installation
+RUN jfrog --version
+
 # Configure JFrog CLI and install dependencies
 RUN jfrog config add my-server-id \
     --artifactory-url=${JF_URL}/artifactory \
@@ -34,6 +37,3 @@ COPY creds.txt /usr/src/
 
 # Start the application
 CMD ["node", "server.js"]
-
-
-
