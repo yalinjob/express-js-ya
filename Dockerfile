@@ -11,7 +11,8 @@ COPY package*.json ./
 RUN apt-get update && \
     apt-get install -y curl make ncat && \
     apt-get clean && \
-    curl -fL https://install-cli.jfrog.io | sh
+    curl -fL https://install-cli.jfrog.io | sh && \
+    mv jfrog /usr/local/bin/
 
 # Verify JFrog CLI installation
 RUN jfrog --version
