@@ -1,5 +1,5 @@
 FROM node:16.19.0
-ARG JF_TOKEN
+ARG JF_ACCESS_TOKEN
 
 # Create app directory
 WORKDIR /usr/src/app
