@@ -11,7 +11,7 @@ RUN curl -fL https://install-cli.jfrog.io | sh
 
 # If you are building your code for production
 RUN jf c import $JF_TOKEN && \
-    jf npmc --repo-resolve=fgr-npm-remote && \
+    jf npmc --repo-resolve=dev_npm_ya_virtul_version && \
     jf npm i --omit dev
 EXPOSE 3000
 
