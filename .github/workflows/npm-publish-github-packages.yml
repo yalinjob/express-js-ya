@@ -65,7 +65,7 @@ jobs:
           echo $repository
 
       - name: Feature Branch Repository Update
-        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtual_version --repo-deploy=dev_npm_ya_virtual_version
+        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtul_version --repo-deploy=dev_npm_ya_virtul_version
 
       - name: Install NPM Dependencies
         run: jf npm install
