@@ -80,15 +80,3 @@ jobs:
           name: npm-build-log
           path: npm_build.log
 
-      - name: Log in to JFrog Artifactory Docker Registry
-        run: docker login soleng.jfrog.io -u ${{ secrets.JF_USER }} --password "${{ secrets.JF_ACCESS_TOKEN }}"
-        
-      - name: Build and Push Docker Image to Artifactory
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: soleng.jfrog.io/dev-image-ya-virtual-version/myappversion2:version2
-        env: 
-            JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
