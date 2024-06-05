@@ -37,8 +37,6 @@ jobs:
       - name: Verify JFrog CLI Installation
         run: jfrog -v
         
-      - name: Check DNS Resolution
-        run: nslookup soleng.jfrog.io
 
       - name: Verify JFrog Artifactory User and Token
         run: |
