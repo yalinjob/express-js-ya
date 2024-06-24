@@ -21,7 +21,7 @@ Build the docker image
 `docker build . -t vuln-ejs:latest`
 
 Run it
-#### Yalin Arie ####
+#### Yalin Arie 24062024####
 `docker run -p 3000:3000 vuln-ejs:latest`
 
 ## Usage
