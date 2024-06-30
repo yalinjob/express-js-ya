@@ -1,0 +1,5 @@
+_auth = eWFsaW5hOmNtVm1kR3R1T2pBeE9qRTNOVEV3TXpRM05UazZORTVEU1ZwelRtOVRVMnQzWVRoeVVUbHFUemwwZWtkMVpWRks=
+email = yalina@jfrog.com
+always-auth = true
+registry=https://soleng.jfrog.io/artifactory/api/npm/dev_npm_ya_virtul_version/
+
