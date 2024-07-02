@@ -36,15 +36,14 @@ jobs:
 
       - name: Verify JFrog CLI Installation
         run: jfrog -v
-        
-
+          
       - name: Verify JFrog Artifactory User and Token
         run: |
           echo "JF_USER: ${{ secrets.JF_USER }}"
           echo "JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}"
           echo "JF_URL: ${{ secrets.JF_URL }}"
           curl -u ${{ secrets.JF_USER }}:${{ secrets.JF_ACCESS_TOKEN }} ${{ secrets.JF_URL }}/artifactory/api/system/ping
-          
+
       - name: Configure JFrog CLI
         run: |
           jfrog config add my-server-id \
@@ -65,19 +64,21 @@ jobs:
       - name: Feature Branch Repository Update
         run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtul_version --repo-deploy=dev_npm_ya_virtul_version
 
+      - name: Check for Outdated NPM Packages
+        run: |
+          npm outdated || echo "No outdated packages found."
+
       - name: Install NPM Dependencies
         run: jf npm install
 
       - name: Build Project
         run: |
           jf npm run build | tee npm_build.log
-          
+
       - name: NPM Audit 
         env:
           JFROG_CLI_BUILD_NAME: 'One Scan NPM'
           JF_URL: https://${{ secrets.JF_URL }}/
-         # JF_HOST: ${{ vars.JF_HOST }}
-         # JF_PROJECT: ${{ vars.JF_PROJECT_KEY }}
         run: |
           jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER 
           jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
@@ -85,9 +86,8 @@ jobs:
           jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
           jf audit --npm --fail=false  
 
-          
-      - if: always() 
-        name: Publish Build Information
+      - name: Publish Build Information
+        if: always()
         run: |
           # Collect environment variables for the build
           jf rt bce
@@ -96,13 +96,12 @@ jobs:
           # Publish build info
           jf rt bp       
 
-
-
       - name: Upload NPM Build Log
         uses: actions/upload-artifact@v2
         with:
           name: npm-build-log
           path: npm_build.log
+
 
           
 
