@@ -36,7 +36,7 @@ jobs:
 
       - name: Verify JFrog CLI Installation
         run: jfrog -v
-          
+
       - name: Verify JFrog Artifactory User and Token
         run: |
           echo "JF_USER: ${{ secrets.JF_USER }}"
@@ -68,12 +68,17 @@ jobs:
         run: |
           npm outdated || echo "No outdated packages found."
 
+      - name: Configure NPM to use JFrog Artifactory
+        run: |
+          npm set registry ${{ secrets.JF_URL }}/artifactory/api/npm/npm_repo/
+          echo "//${{ secrets.JF_URL }}/artifactory/api/npm/npm_repo/:_authToken=${{ secrets.JF_ACCESS_TOKEN }}" > ~/.npmrc
+
       - name: Install NPM Dependencies
-        run: jf npm install
+        run: npm install
 
       - name: Build Project
         run: |
-          jf npm run build | tee npm_build.log
+          npm run build | tee npm_build.log
 
       - name: NPM Audit 
         env:
@@ -101,6 +106,7 @@ jobs:
         with:
           name: npm-build-log
           path: npm_build.log
+
 
 
           
