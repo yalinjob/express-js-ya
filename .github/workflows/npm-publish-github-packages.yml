@@ -67,7 +67,7 @@ jobs:
 
       - name: Check for Outdated NPM Packages
         run: |
-          npm outdated || echo "No outdated packages found."
+          jf npm outdated || echo "No outdated packages found."
 
       - name: Configure NPM to use JFrog Artifactory
         run: |
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build Project
         run: |
-          npm run build | tee npm_build.log
+         jf npm run build | tee npm_build.log
 
     #  - name: NPM Audit 
      #   env:
