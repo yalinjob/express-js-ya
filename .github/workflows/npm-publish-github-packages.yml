@@ -84,15 +84,17 @@ jobs:
       - name: NPM Audit 
         env:
           JFROG_CLI_BUILD_NAME: 'ya-express-demo'
-          JF_URL: https://${{ secrets.JF_URL }}/
-          #JF_HOST: ${{ vars.JF_HOST }}
-          #JF_PROJECT: ${{ vars.JF_PROJECT_KEY }}
-        run: |
-          jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER 
-          jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
-          jf npmc --repo-resolve dev-npm-expressjs-ci-ya-virtul
-          jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
-          jf audit --npm --fail=false
+          run: |
+            echo "JF_USER: ${{ secrets.JF_USER }}"
+            echo "JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}"
+            echo "JF_URL: ${{ secrets.JF_URL }}"
+            curl -u ${{ secrets.JF_USER }}:${{ secrets.JF_ACCESS_TOKEN }} ${{ secrets.JF_URL }}/artifactory/api/system/ping
+        
+            jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER 
+            jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
+            jf npmc --repo-resolve dev-npm-expressjs-ci-ya-virtul
+            jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
+            jf audit --npm --fail=false
 
       - name: Publish Build Information
         if: always()
