@@ -63,7 +63,7 @@ jobs:
           echo $repository
 
       - name: Feature Branch Repository Update
-        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev_npm_ya_virtul_version --repo-deploy=dev_npm_ya_virtul_version
+        run: jf npmc --server-id-resolve=my-server-id --repo-resolve=dev-npm-expressjs-ci-ya-virtul --repo-deploy=dev-npm-expressjs-ci-ya-virtul
 
       - name: Check for Outdated NPM Packages
         run: |
