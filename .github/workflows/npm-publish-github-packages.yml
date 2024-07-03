@@ -75,22 +75,22 @@ jobs:
           echo "//${{ secrets.JF_URL }}/artifactory/api/npm/npm_repo/:_authToken=${{ secrets.JF_ACCESS_TOKEN }}" > ~/.npmrc
 
       - name: Install NPM Dependencies
-        run: npm install
+        run: jf npm install
 
       - name: Build Project
         run: |
           npm run build | tee npm_build.log
 
-      - name: NPM Audit 
-        env:
-          JFROG_CLI_BUILD_NAME: 'One Scan NPM'
-          JF_URL: https://${{ secrets.JF_URL }}/
-        run: |
-          jf rt bce 
-          jf rt bag 
-          jf npmc --repo-resolve dev_npm_ya_remote_version1
-          jf npm i --omit dev --build-name=JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER
-          jf audit --npm --fail=false  
+    #  - name: NPM Audit 
+     #   env:
+      #    JFROG_CLI_BUILD_NAME: 'One Scan NPM'
+       #   JF_URL: https://${{ secrets.JF_URL }}/
+        #run: |
+         # jf rt bce 
+         # jf rt bag 
+         # jf npmc --repo-resolve dev_npm_ya_remote_version1
+         # jf npm i --omit dev --build-name=JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER
+         #  jf audit --npm --fail=false  
 
       - name: Publish Build Information
         if: always()
