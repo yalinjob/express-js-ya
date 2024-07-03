@@ -81,16 +81,18 @@ jobs:
         run: |
          jf npm run build | tee npm_build.log
 
-    #  - name: NPM Audit 
-     #   env:
-      #    JFROG_CLI_BUILD_NAME: 'One Scan NPM'
-       #   JF_URL: https://${{ secrets.JF_URL }}/
-        #run: |
-         # jf rt bce 
-         # jf rt bag 
-         # jf npmc --repo-resolve dev_npm_ya_remote_version1
-         # jf npm i --omit dev --build-name=JFROG_CLI_BUILD_NAME --build-number=$GITHUB_RUN_NUMBER
-         #  jf audit --npm --fail=false  
+      - name: NPM Audit 
+        env:
+          JFROG_CLI_BUILD_NAME: 'ya-express-demo'
+          JF_URL: https://${{ secrets.JF_URL }}/
+          #JF_HOST: ${{ vars.JF_HOST }}
+          #JF_PROJECT: ${{ vars.JF_PROJECT_KEY }}
+        run: |
+          jf rt bce ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER 
+          jf rt bag ${{ env.JFROG_CLI_BUILD_NAME }} $GITHUB_RUN_NUMBER
+          jf npmc --repo-resolve dev-npm-expressjs-ci-ya-virtul
+          jf npm i --omit dev --build-name=${{ env.JFROG_CLI_BUILD_NAME }} --build-number=$GITHUB_RUN_NUMBER
+          jf audit --npm --fail=false
 
       - name: Publish Build Information
         if: always()
