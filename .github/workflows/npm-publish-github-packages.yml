@@ -14,6 +14,7 @@ on:
       - master
       - dev
 
+
 env:
   JFROG_CLI_LOG_LEVEL: DEBUG
   JFROG_CLI_ENV_EXCLUDE: '*password*;*secret*;*key*;*token*;*auth*;JF_ARTIFACTORY_*;JF_ENV_*;JF_URL;JF_USER;JF_PASSWORD;JF_ACCESS_TOKEN'
